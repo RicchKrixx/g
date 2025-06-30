@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hacking Simulator</title>
+  <style>
+    body {
+      background-color: black;
+      color: #00ff00;
+      font-family: "Courier New", Courier, monospace;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    #terminal {
+      white-space: pre-line;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .blink {
+      animation: blink 1s step-start 0s infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="terminal">Initializing hacking protocol...\n</div>
+  <script>
+    const terminal = document.getElementById("terminal");
+    const lines = [
+      "Connecting to server...",
+      "Bypassing firewall...",
+      "Access granted.",
+      "Fetching data...",
+      "Decrypting files...",
+      "Uploading virus.exe... (just kidding 😜)",
+      "Tracking location...",
+      "IP Address: 192.168.1.101",
+      "Root access: SUCCESS",
+      "Operation complete.",
+      "System override in 3...",
+      "2...",
+      "1...",
+      "Just a prank bro! 😂"
+    ];
+
+    let i = 0;
+    function typeLine() {
+      if (i < lines.length) {
+        terminal.innerText += lines[i] + "\n";
+        terminal.scrollTop = terminal.scrollHeight;
+        i++;
+        setTimeout(typeLine, 500 + Math.random() * 500);
+      } else {
+        terminal.innerHTML += "\n<span class='blink'>█</span>";
+      }
+    }
+
+    setTimeout(typeLine, 1000);
+  </script>
+</body>
+</html>
