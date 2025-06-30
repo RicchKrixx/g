@@ -3,145 +3,173 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hacked!</title>
+  <title>System Breach</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: black;
-      color: #00ff00;
-      font-family: monospace;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
       overflow: hidden;
+      background: black;
+      color: #0f0;
+      font-family: monospace;
     }
-
     canvas {
-      display: block;
       position: fixed;
-      top: 0;
-      left: 0;
+      inset: 0;
       z-index: 0;
     }
-
-    .terminal {
+    .glitch {
       position: absolute;
       top: 20%;
-      left: 10%;
-      right: 10%;
-      font-size: 1.2em;
-      color: #00ff00;
-      z-index: 2;
-      white-space: pre-wrap;
-    }
-
-    .glitch {
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2.5rem;
       color: red;
-      animation: glitch 0.3s infinite;
-      font-size: 2em;
-      text-align: center;
-      margin-top: 30vh;
+      z-index: 2;
+      animation: glitch 1s infinite alternate;
+      text-shadow: 2px 2px #ff0000;
     }
-
     @keyframes glitch {
       0% { text-shadow: 2px 2px red; }
-      50% { text-shadow: -2px -2px lime; }
-      100% { text-shadow: 2px -2px blue; }
+      20% { text-shadow: -2px -2px cyan; }
+      40% { text-shadow: 2px -2px yellow; }
+      60% { text-shadow: -2px 2px magenta; }
+      80% { text-shadow: 2px 2px red; }
+      100% { text-shadow: -2px -2px green; }
     }
-
-    .red-flash {
-      background-color: red;
-      color: white;
-      font-size: 2em;
-      text-align: center;
-      padding-top: 30vh;
-      height: 100vh;
-      width: 100vw;
+    #terminal {
+      position: absolute;
+      bottom: 10%;
+      left: 5%;
+      right: 5%;
+      font-size: 1rem;
+      white-space: pre-wrap;
+      z-index: 2;
+    }
+    #redFlash {
       position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 9999;
+      inset: 0;
+      background: red;
+      opacity: 0;
+      z-index: 10;
+      transition: opacity 0.4s;
     }
   </style>
 </head>
 <body>
 
-<canvas id="matrixCanvas"></canvas>
-<div class="terminal" id="terminal"></div>
-<audio id="typingSound" src="https://www.soundjay.com/typing/keyboard-1.mp3" preload="auto"></audio>
+<canvas id="matrix"></canvas>
+<div class="glitch">SYSTEM BREACH</div>
+<pre id="terminal">Connecting to system...</pre>
+<div id="redFlash"></div>
+
+<!-- Sounds -->
+<audio id="bgMusic" src="669728__snzl__vil-noise-fm-mod.flac" loop autoplay></audio>
+<audio id="typeSound" src="https://assets.mixkit.co/sfx/preview/mixkit-typewriter-soft-click-1121.mp3"></audio>
 
 <script>
-  // Matrix Rain
-  const canvas = document.getElementById("matrixCanvas");
-  const ctx = canvas.getContext("2d");
+const cvs = document.getElementById("matrix"), ctx = cvs.getContext("2d");
+function resize() {
+  cvs.width = innerWidth;
+  cvs.height = innerHeight;
+}
+resize();
+addEventListener("resize", resize);
 
-  canvas.height = window.innerHeight;
-  canvas.width = window.innerWidth;
+const chars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&*@";
+const font = 16;
+let cols, drops;
+function initDrops() {
+  cols = Math.floor(cvs.width / font);
+  drops = Array(cols).fill(1);
+}
+initDrops();
+addEventListener("resize", initDrops);
 
-  const letters = "01";
-  const fontSize = 14;
-  const columns = canvas.width / fontSize;
-  const drops = Array(Math.floor(columns)).fill(1);
+function rain() {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+  ctx.fillRect(0, 0, cvs.width, cvs.height);
+  ctx.fillStyle = "#0f0";
+  ctx.font = font + "px monospace";
+  drops.forEach((y, i) => {
+    const text = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillText(text, i * font, y * font);
+    drops[i] = (y * font > cvs.height && Math.random() > 0.975) ? 0 : y + 1;
+  });
+}
+setInterval(rain, 35);
 
-  function drawMatrix() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+// Typing effect with vibration
+const term = document.getElementById("terminal");
+const typeSound = document.getElementById("typeSound");
+const flash = document.getElementById("redFlash");
 
-    ctx.fillStyle = "#0F0";
-    ctx.font = fontSize + "px monospace";
+const lines1 = [
+  "Bypassing firewall...",
+  "Accessing root shell...",
+  "Injecting payload...",
+  "Deleting system data in 3...",
+  "2...",
+  "1..."
+];
+const lines2 = [
+  "Deleting /system/data/bootloader.cfg",
+  "Deleting /storage/photos/IMG_01.jpg",
+  "Erasing security logs...",
+  "Formatting internal drive...",
+  "System shutdown initiated..."
+];
 
-    for (let i = 0; i < drops.length; i++) {
-      const text = letters.charAt(Math.floor(Math.random() * letters.length));
-      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-        drops[i] = 0;
-      }
-
-      drops[i]++;
-    }
+function vibrate(ms) {
+  if (navigator.vibrate) {
+    navigator.vibrate(ms);
   }
+}
 
-  setInterval(drawMatrix, 35);
+function playClick() {
+  typeSound.currentTime = 0;
+  typeSound.play().catch(() => {});
+}
 
-  // Typing simulation
-  const terminal = document.getElementById("terminal");
-  const typingSound = document.getElementById("typingSound");
-  const lines = [
-    "Accessing secure files...",
-    "Bypassing firewall...",
-    "Injecting payload...",
-    "System Breach Detected!",
-    "Initiating self-destruct...",
-    "Deleting device data..."
-  ];
-
-  let index = 0;
-
-  function typeLine(line, i = 0) {
-    if (i < line.length) {
-      terminal.innerHTML += line.charAt(i);
-      typingSound.currentTime = 0;
-      typingSound.play();
-      setTimeout(() => typeLine(line, i + 1), 50);
-    } else {
-      terminal.innerHTML += "\n";
-      index++;
-      if (index < lines.length) {
-        setTimeout(() => typeLine(lines[index]), 500);
+function typeLines(lines, idx, speed, done) {
+  if (idx < lines.length) {
+    let line = lines[idx++] + "\n", j = 0;
+    (function typeChar() {
+      if (j < line.length) {
+        term.textContent += line[j];
+        if (line[j] !== " " && line[j] !== "\n") {
+          playClick();
+          vibrate(30);
+        }
+        j++;
+        setTimeout(typeChar, speed);
       } else {
-        setTimeout(showRedScreen, 2000);
+        setTimeout(() => typeLines(lines, idx, speed, done), 400);
       }
-    }
+    })();
+  } else {
+    done();
   }
+}
 
-  typeLine(lines[0]);
+function flashAndRestart() {
+  flash.style.opacity = 1;
+  vibrate([500, 200, 500, 200, 1000]);
+  setTimeout(() => {
+    flash.style.opacity = 0;
+  }, 1200);
+  setTimeout(() => location.reload(), 5000);
+}// Start prank
+window.onload = () => {
+  typeLines(lines1, 0, 60, () => {
+    typeLines(lines2, 0, 30, () => {
+      flashAndRestart();
+      term.textContent += "\n⚠️ DEVICE BREACHED ⚠️\nYou’ve been PRANKED 🤖";
+    });
+  });
 
-  // Final red flash screen
-  function showRedScreen() {
-    document.body.innerHTML = <div class="red-flash">DELETING DEVICE DATA...</div>;
-    setTimeout(() => {
-      location.reload(); // Auto restart
-    }, 6000);
-  }
+  document.getElementById("bgMusic").play().catch(() => {});
+};
 </script>
 </body>
 </html>
