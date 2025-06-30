@@ -2,138 +2,142 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hacking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>System Breach</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       background: black;
       overflow: hidden;
-      font-family: monospace;
-        text-align: center;
+      height: 100%;
+      width: 100%;
+      font-family: 'Courier New', monospace;
+      color: #0f0;
     }
 
     canvas {
-      position: fixed;
+      position: absolute;
       top: 0;
       left: 0;
-      z-index: 0;
+      z-index: 1;
     }
 
-    .center-text {
-      position: fixed;
+    .text-overlay {
+      position: absolute;
       top: 50%;
-      left: 0%;
+      left: 50%;
       transform: translate(-50%, -50%);
-      color: lime;
-      font-size: 28px;
+      color: #0f0;
+      font-size: 9vw;
       font-weight: bold;
-      text-shadow: 0 0 10px lime;
-      z-index: 10;
-      animation: glitch 0.2s infinite;
       text-align: center;
+      z-index: 2;
+      animation: glitchText 0.2s infinite alternate;
       white-space: nowrap;
     }
 
-    @keyframes glitch {
-      0% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-50%, -50%) scale(1.05); }
-      100% { transform: translate(-50%, -50%) scale(1); }
+    @keyframes glitchText {
+      0% { text-shadow: 2px 2px red; }
+      100% { text-shadow: -2px -2px blue; }
     }
 
     .red-flash {
-      background-color: red;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 999;
-      opacity: 0;
-      transition: opacity 0.1s ease;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: red;
+      z-index: 9999;
+      animation: flashRed 0.15s 5;
     }
 
-    .red-flash.show {
-      opacity: 1;
+    @keyframes flashRed {
+      0% { opacity: 0; }
+      50% { opacity: 1; }
+      100% { opacity: 0; }
     }
   </style>
 </head>
 <body>
-<canvas id="matrix"></canvas>
-<div class="center-text" id="textDisplay"></div>
-<div class="red-flash" id="redFlash"></div>
+  <canvas id="matrix"></canvas>
+  <div class="text-overlay" id="hackText">HACKING DEVICE...</div>
 
-<audio id="glitchSound" src="https://www.soundjay.com/button/beep-07.wav"></audio>
+  <audio id="typeSound" autoplay loop>
+    <source src="https://www.soundjay.com/mechanical/typewriter-1.mp3" type="audio/mpeg" />
+  </audio>
 
-<script>
-  // MATRIX RAIN EFFECT
-  const canvas = document.getElementById('matrix');
-  const ctx = canvas.getContext('2d');
-  canvas.height = window.innerHeight;
-  canvas.width = window.innerWidth;
-  const letters = "01";
-  const fontSize = 16;
-  const columns = canvas.width / fontSize;
-  const drops = Array(Math.floor(columns)).fill(1);
+  <script>
+    // MATRIX RAIN
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
 
-  function drawMatrix() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#0F0";
-    ctx.font = fontSize + "px monospace";
+    let letters = "01";
+    letters = letters.split("");
 
-    for (let i = 0; i < drops.length; i++) {
-      const text = letters[Math.floor(Math.random() * letters.length)];
-      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-      if (drops[i] * fontSize > canvas.height || Math.random() > 0.975) {
-        drops[i] = 0;
+    let fontSize = 14;
+    let columns = canvas.width / fontSize;
+    let drops = [];
+    for(let x = 0; x < columns; x++) drops[x] = 1;
+
+    function drawMatrix() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#0f0";
+      ctx.font = fontSize + "px monospace";
+      for(let i = 0; i < drops.length; i++) {
+        let text = letters[Math.floor(Math.random()*letters.length)];
+        ctx.fillText(text, i*fontSize, drops[i]*fontSize);
+        if(drops[i]*fontSize > canvas.height && Math.random() > 0.975)
+          drops[i] = 0;
+        drops[i]++;
       }
-      drops[i]++;
     }
-  }
+    setInterval(drawMatrix, 50);
 
-  setInterval(drawMatrix, 50);
+    // WRITING CHANGES
+    const texts = [
+      "HACKING DEVICE...",
+      "ACCESSING FILE SYSTEM...",
+      "DELETING FILES...",
+      "ERASING MEMORY...",
+      "SENDING LOGS TO SERVER...",
+      "DEVICE SHUTDOWN IN 5...",
+      "4...",
+      "3...",
+      "2...",
+      "1..."
+    ];
 
-  // TEXT SEQUENCE
-  const messages = [
-    "HACKING IN PROGRESS...",
-    "ACCESSING SECURED FILES...",
-    "OVERRIDING FIREWALL...",
-    "EXTRACTING DATA...",
-    "DELETING FILES...",
-    "JUST KIDDING 😂"
-  ];
+    let index = 0;
+    const hackText = document.getElementById("hackText");
 
-  const textEl = document.getElementById('textDisplay');
-  const glitchSound = document.getElementById('glitchSound');
+    function showNextText() {
+      if (index < texts.length) {
+        hackText.textContent = texts[index];
+        index++;
 
-  let i = 0;
-  function showNextText() {
-    if (i < messages.length) {
-      textEl.innerText = messages[i];
-      glitchSound.play();
-      if (navigator.vibrate) navigator.vibrate([100, 200, 100]);
-      i++;
-      setTimeout(showNextText, 2500);
-    } else {
-      redFlash();
+        // VIBRATION for each stage (mobile only)
+        if (navigator.vibrate) {
+          navigator.vibrate(150);
+        }
+
+        setTimeout(showNextText, 1000);
+      } else {
+        // Flash red and redirect
+        const flash = document.createElement('div');
+        flash.className = 'red-flash';
+        document.body.appendChild(flash);
+
+        setTimeout(() => {
+          window.location.href = "p.html";
+        }, 1500);
+      }
     }
-  }
 
-  function redFlash() {
-    const redEl = document.getElementById('redFlash');
-    redEl.classList.add('show');
-    if (navigator.vibrate) navigator.vibrate([500, 500, 500]);
-    setTimeout(() => {
-      window.location.href = "p.html"; // <-- Replace this URL
-    }, 2000);
-  }
-
-  // Start automatically
-  window.onload = () => {
-    showNextText();
-  };
-</script>
+    // Start prank automatically
+    window.onload = showNextText;
+  </script>
 </body>
 </html>
